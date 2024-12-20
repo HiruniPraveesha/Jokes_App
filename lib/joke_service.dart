@@ -12,28 +12,18 @@ class JokeService {
       final response = await http.get(Uri.parse('https://official-joke-api.appspot.com/jokes/ten'));
 
       if (response.statusCode == 200) {
-        // Log the raw response body
-        print('Response body: ${response.body}');
-
         List<dynamic> jokesJson = json.decode(response.body);
         List<Joke> jokes = jokesJson.map((jokeJson) => Joke.fromJson(jokeJson)).toList();
 
-        // Print the jokes to verify they are received
-        for (var joke in jokes) {
-          print(joke.joke);
-        }
-
         // Cache the jokes
-        _cacheJokes(jokes);
+        await _cacheJokes(jokes);
 
         // Return only the first 5 jokes
         return jokes.take(5).toList();
       } else {
-        print('Failed to load jokes: ${response.statusCode}');
         throw Exception('Failed to load jokes');
       }
     } catch (e) {
-      print('Error fetching jokes: $e');
       throw Exception('Failed to load jokes');
     }
   }
@@ -44,11 +34,9 @@ class JokeService {
     final String? jokesJson = prefs.getString(_jokesCacheKey);
 
     if (jokesJson != null) {
-      print('Jokes retrieved from cache');
       List<dynamic> jokesList = json.decode(jokesJson);
       return jokesList.map((jokeJson) => Joke.fromJson(jokeJson)).toList();
     } else {
-      print('No jokes found in cache');
       return [];
     }
   }
@@ -58,6 +46,5 @@ class JokeService {
     final prefs = await SharedPreferences.getInstance();
     List<Map<String, dynamic>> jokesJson = jokes.map((joke) => joke.toJson()).toList();
     prefs.setString(_jokesCacheKey, json.encode(jokesJson));
-    print('Jokes cached');
   }
 }

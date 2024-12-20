@@ -13,6 +13,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.grey[200],
+      ),
       home: const JokesPage(),
     );
   }
@@ -41,14 +45,15 @@ class _JokesPageState extends State<JokesPage> {
     try {
       return await jokeService.fetchJokes(); // Try fetching from the network
     } catch (_) {
-      return await jokeService.getCachedJokes(); // Fallback to cached jokes
+      List<Joke> cachedJokes = await jokeService.getCachedJokes(); // Fallback to cached jokes
+      return cachedJokes.take(5).toList(); // Return only the latest 5 cached jokes
     }
   }
 
   // Refresh jokes
   void _refreshJokes() {
     setState(() {
-      jokesFuture = jokeService.fetchJokes();
+      jokesFuture = _loadJokes();
     });
   }
 
@@ -57,7 +62,7 @@ class _JokesPageState extends State<JokesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jokes for the Day'),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.blue,
       ),
       body: FutureBuilder<List<Joke>>(
         future: jokesFuture,
@@ -72,14 +77,27 @@ class _JokesPageState extends State<JokesPage> {
               itemCount: jokes.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   child: Card(
                     elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        jokes[index].joke,
-                        style: const TextStyle(fontSize: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            jokes[index].setup,
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            jokes[index].punchline,
+                            style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -93,7 +111,7 @@ class _JokesPageState extends State<JokesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshJokes,
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.blue,
         child: const Icon(Icons.refresh),
       ),
     );
