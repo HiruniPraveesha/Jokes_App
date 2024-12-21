@@ -60,74 +60,123 @@ class _JokesPageState extends State<JokesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Explore latest Jokes',
-          style: TextStyle(color: Colors.white),
+          'Explore Latest Jokes 🤣😂',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.blue,
+        elevation: 0,
+        centerTitle: true,
       ),
-      body: FutureBuilder<List<Joke>>(
-        future: jokesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.blue,
+      body: Stack(
+        children: [
+          // Background gradient
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.blue[200]!, Colors.blue[50]!],
+                ),
               ),
-            );
-          } else if (snapshot.hasError) {
-            return const Center(
-              child: Text('Failed to load jokes',
-                  style: TextStyle(color: Colors.red)),
-            );
-          } else if (snapshot.hasData) {
-            List<Joke> jokes = snapshot.data!;
-            return ListView.builder(
-              itemCount: jokes.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
-                  child: Card(
-                    color: Colors.blue[100],
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            jokes[index].setup,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            jokes[index].punchline,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+            ),
+          ),
+          // Main content
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Welcome to the Jokes App! 🎉\nLet's make you smile with some funny jokes! 😆",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blueGrey,
                   ),
-                );
-              },
-            );
-          } else {
-            return const Center(
-              child: Text('No jokes available',
-                  style: TextStyle(color: Colors.blueGrey)),
-            );
-          }
-        },
+                ),
+                const SizedBox(height: 20),
+                FutureBuilder<List<Joke>>(
+                  future: jokesFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 4,
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return const Center(
+                        child: Text(
+                          'Failed to load jokes',
+                          style: TextStyle(color: Colors.red, fontSize: 18),
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      List<Joke> jokes = snapshot.data!;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: jokes.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Card(
+                              color: Colors.white,
+                              elevation: 6,
+                              shadowColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      jokes[index].setup,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      jokes[index].punchline,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.blueGrey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(
+                        child: Text(
+                          'No jokes available',
+                          style:
+                              TextStyle(color: Colors.blueGrey, fontSize: 18),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshJokes,
