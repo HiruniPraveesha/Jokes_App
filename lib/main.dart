@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[200],
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: const JokesPage(),
     );
@@ -40,17 +40,15 @@ class _JokesPageState extends State<JokesPage> {
     jokesFuture = _loadJokes();
   }
 
-  // Load jokes either from the network or from the cache
   Future<List<Joke>> _loadJokes() async {
     try {
-      return await jokeService.fetchJokes(); // Try fetching from the network
+      return await jokeService.fetchJokes();
     } catch (_) {
-      List<Joke> cachedJokes = await jokeService.getCachedJokes(); // Fallback to cached jokes
-      return cachedJokes.take(5).toList(); // Return only the latest 5 cached jokes
+      List<Joke> cachedJokes = await jokeService.getCachedJokes();
+      return cachedJokes.take(5).toList();
     }
   }
 
-  // Refresh jokes
   void _refreshJokes() {
     setState(() {
       jokesFuture = _loadJokes();
@@ -61,27 +59,39 @@ class _JokesPageState extends State<JokesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Jokes for the Day'),
+        title: const Text(
+          'Explore latest Jokes',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.blue,
       ),
       body: FutureBuilder<List<Joke>>(
         future: jokesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.blue,
+              ),
+            );
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load jokes'));
+            return const Center(
+              child: Text('Failed to load jokes',
+                  style: TextStyle(color: Colors.red)),
+            );
           } else if (snapshot.hasData) {
             List<Joke> jokes = snapshot.data!;
             return ListView.builder(
               itemCount: jokes.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
                   child: Card(
-                    elevation: 5,
+                    color: Colors.blue[100],
+                    elevation: 8,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -90,12 +100,19 @@ class _JokesPageState extends State<JokesPage> {
                         children: [
                           Text(
                             jokes[index].setup,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             jokes[index].punchline,
-                            style: const TextStyle(fontSize: 16, color: Colors.grey),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.blueGrey,
+                            ),
                           ),
                         ],
                       ),
@@ -105,14 +122,17 @@ class _JokesPageState extends State<JokesPage> {
               },
             );
           } else {
-            return const Center(child: Text('No jokes available'));
+            return const Center(
+              child: Text('No jokes available',
+                  style: TextStyle(color: Colors.blueGrey)),
+            );
           }
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _refreshJokes,
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.refresh),
+        child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
   }
